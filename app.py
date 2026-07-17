@@ -50,7 +50,6 @@ with st.sidebar:
 licor_seleccionado = st.selectbox("Selecciona el Licor a cuadrar", list(st.session_state['licores'].keys()))
 config = st.session_state['licores'][licor_seleccionado]
 
-# Inicializar datos en el baúl si no existen
 if licor_seleccionado not in st.session_state['datos']:
     st.session_state['datos'][licor_seleccionado] = {
         'ib': 0, 'io': 0, 'inb': 0, 'ino': 0, 'sb': 0, 'so': 0,
@@ -122,10 +121,14 @@ with st.container(border=True):
     r2.metric("Botellas", int(final_bot))
     r3.metric("Onzas", int(final_oz))
 
+# --- CUADRO RESUMEN LIMPIO ---
 st.markdown("### 📊 Resumen del Desglose")
 resumen_data = {
-    "Concepto": ["Inicio", "Ingresos", "Salida", "Bot. Abiertas", "Salida Botellas", "Salida Tragos"],
+    "Concepto": ["Inicio", "Ingresos", "Salida", "Bot. Abiertas", 
+                 f"Salida Botellas (Ven: {d['vb']} | Cor: {d['cb']} | Tic: {d['tb']} | Pta: {d['pb']})", 
+                 f"Salida Tragos (Ven: {d['vt']} | Cor: {d['ct']} | Tic: {d['tt']})"],
     "Botellas": [d['ib'], d['inb'], -d['sb'], -d['ba'], -(d['vb'] + d['cb'] + d['tb'] + d['pb']), "-"],
     "Onzas": [d['io'], d['ino'], -d['so'], (d['ba'] * config['oz_botella']), "-", -total_oz_salida_tragos]
 }
-st.dataframe(pd.DataFrame(resumen_data), use_container_width=True)
+# Usamos st.table para que sea una tabla fija sin índices numéricos extra
+st.table(pd.DataFrame(resumen_data))
