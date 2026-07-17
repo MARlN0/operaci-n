@@ -4,9 +4,7 @@ import pandas as pd
 # Configuración de página
 st.set_page_config(page_title="Control de Barra Pro", layout="wide")
 
-st.title("🍸 App de Control de Inventario")
-
-# --- GESTIÓN DE MEMORIA (BAÚL DE DATOS) ---
+# --- GESTIÓN DE MEMORIA BLINDADA ---
 if 'licores' not in st.session_state:
     st.session_state['licores'] = {
         'Tanqueray': {'oz_botella': 22, 'oz_trago': 2.0},
@@ -16,10 +14,11 @@ if 'licores' not in st.session_state:
 if 'datos' not in st.session_state:
     st.session_state['datos'] = {}
 
+st.title("🍸 App de Control de Inventario")
+
 # --- BARRA LATERAL ---
 with st.sidebar:
     st.header("Configuración")
-    
     if st.button("🔄 REINICIAR TURNO (Borrar Todo)"):
         st.session_state['datos'] = {}
         st.rerun()
@@ -34,7 +33,6 @@ with st.sidebar:
             st.rerun()
             
     st.divider()
-    
     st.markdown("**🗑️ Eliminar Existente**")
     licor_a_eliminar = st.selectbox("Selecciona para borrar", list(st.session_state['licores'].keys()))
     if st.button("Eliminar Licor"):
@@ -50,6 +48,7 @@ with st.sidebar:
 licor_seleccionado = st.selectbox("Selecciona el Licor a cuadrar", list(st.session_state['licores'].keys()))
 config = st.session_state['licores'][licor_seleccionado]
 
+# Asegurar persistencia del diccionario de datos
 if licor_seleccionado not in st.session_state['datos']:
     st.session_state['datos'][licor_seleccionado] = {
         'ib': 0, 'io': 0, 'inb': 0, 'ino': 0, 'sb': 0, 'so': 0,
@@ -67,47 +66,47 @@ with col_izq:
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center; margin-bottom: 0px;'>INICIO</h4>", unsafe_allow_html=True)
         c1, c2 = st.columns(2)
-        d['ib'] = c1.number_input("Botellas", value=d['ib'], key=f"ib_{licor_seleccionado}")
-        d['io'] = c2.number_input("OZ", value=d['io'], key=f"io_{licor_seleccionado}")
+        d['ib'] = c1.number_input("Botellas", value=int(d['ib']), key=f"ib_{licor_seleccionado}")
+        d['io'] = c2.number_input("OZ", value=int(d['io']), key=f"io_{licor_seleccionado}")
         
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center; margin-bottom: 0px;'>INGRESO</h4>", unsafe_allow_html=True)
         c1, c2 = st.columns(2)
-        d['inb'] = c1.number_input("Botellas", value=d['inb'], key=f"inb_{licor_seleccionado}")
-        d['ino'] = c2.number_input("OZ", value=d['ino'], key=f"ino_{licor_seleccionado}")
+        d['inb'] = c1.number_input("Botellas", value=int(d['inb']), key=f"inb_{licor_seleccionado}")
+        d['ino'] = c2.number_input("OZ", value=int(d['ino']), key=f"ino_{licor_seleccionado}")
 
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center; margin-bottom: 0px;'>SALIDA</h4>", unsafe_allow_html=True)
         c1, c2 = st.columns(2)
-        d['sb'] = c1.number_input("Botellas", value=d['sb'], key=f"sb_{licor_seleccionado}")
-        d['so'] = c2.number_input("OZ", value=d['so'], key=f"so_{licor_seleccionado}")
+        d['sb'] = c1.number_input("Botellas", value=int(d['sb']), key=f"sb_{licor_seleccionado}")
+        d['so'] = c2.number_input("OZ", value=int(d['so']), key=f"so_{licor_seleccionado}")
         
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center; margin-bottom: 0px;'>BOT ABIERTA PARA COCTEL</h4>", unsafe_allow_html=True)
-        d['ba'] = st.number_input("Botellas a abrir", value=d['ba'], key=f"ba_{licor_seleccionado}")
+        d['ba'] = st.number_input("Botellas a abrir", value=int(d['ba']), key=f"ba_{licor_seleccionado}")
 
 with col_der:
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center; margin-bottom: 0px;'>VENTA</h4>", unsafe_allow_html=True)
         c1, c2 = st.columns(2)
-        d['vb'] = c1.number_input("Botellas", value=d['vb'], key=f"vb_{licor_seleccionado}")
-        d['vt'] = c2.number_input("Tragos", value=d['vt'], key=f"vt_{licor_seleccionado}")
+        d['vb'] = c1.number_input("Botellas", value=int(d['vb']), key=f"vb_{licor_seleccionado}")
+        d['vt'] = c2.number_input("Tragos", value=int(d['vt']), key=f"vt_{licor_seleccionado}")
         
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center; margin-bottom: 0px;'>CORTESÍA</h4>", unsafe_allow_html=True)
         c1, c2 = st.columns(2)
-        d['cb'] = c1.number_input("Botellas", value=d['cb'], key=f"cb_{licor_seleccionado}")
-        d['ct'] = c2.number_input("Tragos", value=d['ct'], key=f"ct_{licor_seleccionado}")
+        d['cb'] = c1.number_input("Botellas", value=int(d['cb']), key=f"cb_{licor_seleccionado}")
+        d['ct'] = c2.number_input("Tragos", value=int(d['ct']), key=f"ct_{licor_seleccionado}")
         
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center; margin-bottom: 0px;'>TICKETS</h4>", unsafe_allow_html=True)
         c1, c2 = st.columns(2)
-        d['tb'] = c1.number_input("Botellas", value=d['tb'], key=f"tb_{licor_seleccionado}")
-        d['tt'] = c2.number_input("Tragos", value=d['tt'], key=f"tt_{licor_seleccionado}")
+        d['tb'] = c1.number_input("Botellas", value=int(d['tb']), key=f"tb_{licor_seleccionado}")
+        d['tt'] = c2.number_input("Tragos", value=int(d['tt']), key=f"tt_{licor_seleccionado}")
         
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center; margin-bottom: 0px;'>PUERTA</h4>", unsafe_allow_html=True)
-        d['pb'] = st.number_input("Botellas Cerradas", value=d['pb'], key=f"pb_{licor_seleccionado}")
+        d['pb'] = st.number_input("Botellas Cerradas", value=int(d['pb']), key=f"pb_{licor_seleccionado}")
 
 # --- LÓGICA FINAL ---
 final_bot = d['ib'] + d['inb'] - d['sb'] - d['ba'] - d['vb'] - d['cb'] - d['tb'] - d['pb']
@@ -130,5 +129,4 @@ resumen_data = {
     "Botellas": [d['ib'], d['inb'], -d['sb'], -d['ba'], -(d['vb'] + d['cb'] + d['tb'] + d['pb']), "-"],
     "Onzas": [d['io'], d['ino'], -d['so'], (d['ba'] * config['oz_botella']), "-", -total_oz_salida_tragos]
 }
-# Usamos st.table para que sea una tabla fija sin índices numéricos extra
 st.table(pd.DataFrame(resumen_data))
