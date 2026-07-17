@@ -1,8 +1,28 @@
 import streamlit as st
 import pandas as pd
+import json
+import os
 
 # Configuración de página
 st.set_page_config(page_title="Control de Barra Pro", layout="wide")
+
+# --- FUNCIONES PARA GUARDAR EN ARCHIVO FÍSICO ---
+ARCHIVO_MEMORIA = 'memoria_barra.json'
+
+def cargar_datos():
+    # Si el archivo existe, lee lo que se guardó anteriormente
+    if os.path.exists(ARCHIVO_MEMORIA):
+        try:
+            with open(ARCHIVO_MEMORIA, 'r') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def guardar_datos(datos):
+    # Escribe los datos actuales en el archivo para que no se borren al cerrar
+    with open(ARCHIVO_MEMORIA, 'w') as f:
+        json.dump(datos, f)
 
 # --- GESTIÓN DE MEMORIA BLINDADA ---
 if 'licores' not in st.session_state:
@@ -11,8 +31,9 @@ if 'licores' not in st.session_state:
         'Ron': {'oz_botella': 24, 'oz_trago': 2.0}
     }
 
+# Aquí ahora cargamos desde el archivo físico en lugar de empezar de cero
 if 'datos' not in st.session_state:
-    st.session_state['datos'] = {}
+    st.session_state['datos'] = cargar_datos()
 
 st.title("🍸 App de Control de Inventario")
 
@@ -21,6 +42,7 @@ with st.sidebar:
     st.header("Configuración")
     if st.button("🔄 REINICIAR TURNO (Borrar Todo)"):
         st.session_state['datos'] = {}
+        guardar_datos({}) # Borra el archivo físico también
         st.rerun()
 
     st.divider()
@@ -40,6 +62,7 @@ with st.sidebar:
             del st.session_state['licores'][licor_a_eliminar]
             if licor_a_eliminar in st.session_state['datos']:
                 del st.session_state['datos'][licor_a_eliminar]
+                guardar_datos(st.session_state['datos']) # Actualiza el archivo al eliminar
             st.rerun()
         else:
             st.error("Debe quedar al menos 1 licor.")
@@ -130,3 +153,7 @@ resumen_data = {
     "Onzas": [d['io'], d['ino'], -d['so'], (d['ba'] * config['oz_botella']), "-", -total_oz_salida_tragos]
 }
 st.table(pd.DataFrame(resumen_data))
+
+# --- AUTO-GUARDADO FINAL ---
+# Esta línea garantiza que cualquier número que cambies se guarde al instante en el archivo
+guardar_datos(st.session_state['datos'])
